@@ -62,7 +62,7 @@ function Report({ data }) {
     } else {
       try {
         const report = await createNewReport(reportData);
-        if (report.data.errorCode !== 0) {
+        if (report.data.errorCode === 0) {
           toast.success("Report successfully!");
           setSelectedReasons([]);
           setDescription("");
