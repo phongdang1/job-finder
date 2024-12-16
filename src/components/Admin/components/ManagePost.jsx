@@ -303,6 +303,7 @@ const ManagePostAdmin = () => {
             <option value="APPROVED">APPROVED</option>
             <option value="BANNED">BANNED</option>
             <option value="REJECTED">REJECTED</option>
+            <option value="CLOSED">CLOSED</option>
           </select>
         </div>
       </div>
@@ -341,23 +342,26 @@ const ManagePostAdmin = () => {
               </TableCell>
               <TableCell className="text-center">
                 <span
-                  className={`w-20 text-center inline-block py-1 px-2 rounded-full text-xs ${
-                    post.statusCode.toUpperCase() === "APPROVED"
-                      ? "bg-green-500 text-white"
-                      : post.statusCode.toUpperCase() === "PENDING"
+                  className={`w-20 text-center inline-block py-1 px-2 rounded-full text-xs ${post.statusCode.toUpperCase() === "APPROVED"
+                    ? "bg-green-500 text-white"
+                    : post.statusCode.toUpperCase() === "PENDING"
                       ? "bg-gray-500 text-white"
                       : post.statusCode.toUpperCase() === "BANNED"
-                      ? "bg-orange-500 text-white"
-                      : "bg-red-500 text-white"
-                  }`}
+                        ? "bg-orange-500 text-white"
+                        : post.statusCode.toUpperCase() === "CLOSED"
+                          ? "bg-orange-800 text-white"
+                          : "bg-red-500 text-white"
+                    }`}
                 >
                   {post.statusCode.toUpperCase() === "APPROVED"
                     ? "APPROVED"
                     : post.statusCode.toUpperCase() === "PENDING"
-                    ? "PENDING"
-                    : post.statusCode.toUpperCase() === "BANNED"
-                    ? "BANNED"
-                    : "REJECTED"}
+                      ? "PENDING"
+                      : post.statusCode.toUpperCase() === "BANNED"
+                        ? "BANNED"
+                        : post.statusCode.toUpperCase() === "CLOSED"
+                          ? "CLOSED"
+                          : "REJECTED"}
                 </span>
               </TableCell>
             </TableRow>
@@ -498,70 +502,70 @@ const ManagePostAdmin = () => {
                     <div className="flex justify-end">
                       {currentPostDetail.statusCode.toUpperCase() ===
                         "PENDING".toUpperCase() && (
-                        <>
+                          <>
+                            <button
+                              onClick={handleActive}
+                              className="p-3 text-white bg-green-500 hover:bg-green-700 rounded-md mr-2"
+                            >
+                              Approve
+                            </button>
+                            <GlobalLoadingMain isSubmiting={loading} />
+                            <button
+                              onClick={() => {
+                                setShowConfirm(true);
+                                setAction("reject");
+                              }}
+                              className="p-3 text-white bg-red-500 hover:bg-red-700 rounded-md"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      {currentPostDetail.statusCode.toUpperCase() ===
+                        "APPROVED".toUpperCase() && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setShowConfirm(true);
+                                setAction("reject");
+                              }}
+                              className="p-3 text-white bg-red-500 hover:bg-red-700 rounded-md mr-2"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowConfirm(true);
+                                setAction("ban");
+                              }}
+                              className="p-3 text-white bg-orange-500 hover:bg-orange-700 rounded-md"
+                            >
+                              Ban
+                            </button>
+                          </>
+                        )}
+                      {currentPostDetail.statusCode.toUpperCase() ===
+                        "REJECTED".toUpperCase() && (
                           <button
                             onClick={handleActive}
-                            className="p-3 text-white bg-green-500 hover:bg-green-700 rounded-md mr-2"
+                            className="p-3 text-white bg-green-500 hover:bg-green-700 rounded-md"
                           >
                             Approve
                           </button>
-                          <GlobalLoadingMain isSubmiting={loading} />
-                          <button
-                            onClick={() => {
-                              setShowConfirm(true);
-                              setAction("reject");
-                            }}
-                            className="p-3 text-white bg-red-500 hover:bg-red-700 rounded-md"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      {currentPostDetail.statusCode.toUpperCase() ===
-                        "APPROVED".toUpperCase() && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setShowConfirm(true);
-                              setAction("reject");
-                            }}
-                            className="p-3 text-white bg-red-500 hover:bg-red-700 rounded-md mr-2"
-                          >
-                            Reject
-                          </button>
-                          <button
-                            onClick={() => {
-                              setShowConfirm(true);
-                              setAction("ban");
-                            }}
-                            className="p-3 text-white bg-orange-500 hover:bg-orange-700 rounded-md"
-                          >
-                            Ban
-                          </button>
-                        </>
-                      )}
-                      {currentPostDetail.statusCode.toUpperCase() ===
-                        "REJECTED".toUpperCase() && (
-                        <button
-                          onClick={handleActive}
-                          className="p-3 text-white bg-green-500 hover:bg-green-700 rounded-md"
-                        >
-                          Approve
-                        </button>
-                      )}
+                        )}
 
                       {currentPostDetail.statusCode.toUpperCase() ===
                         "BANNED".toUpperCase() && (
-                        <button
-                          onClick={() => {
-                            setShowConfirm(true);
-                            setAction("unban");
-                          }}
-                          className="p-3 text-white bg-blue-500 hover:bg-blue-700 rounded-md"
-                        >
-                          Unban
-                        </button>
-                      )}
+                          <button
+                            onClick={() => {
+                              setShowConfirm(true);
+                              setAction("unban");
+                            }}
+                            className="p-3 text-white bg-blue-500 hover:bg-blue-700 rounded-md"
+                          >
+                            Unban
+                          </button>
+                        )}
                     </div>
 
                     {showConfirm === true && (
