@@ -62,16 +62,16 @@ function Report({ data }) {
     } else {
       try {
         const report = await createNewReport(reportData);
-        if (report.data.errorCode === -1) {
-          console.log("rp data", report);
-          toast.error(report.data.errMessage);
-          setSelectedReasons([]);
-          setDescription("");
-        } else {
+        if (report.data.errorCode !== 0) {
           toast.success("Report successfully!");
           setSelectedReasons([]);
           setDescription("");
           setIsDialogOpen(false);
+        } else {
+          console.log("rp data", report);
+          toast.error(report.data.errMessage);
+          setSelectedReasons([]);
+          setDescription("");
         }
       } catch (error) {
         toast.error("An error occurred while submitting the report.");
