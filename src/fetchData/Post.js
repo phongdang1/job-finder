@@ -41,6 +41,7 @@ const getDetailPostById = (id) => {
 };
 
 const banPost = (id, note) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/banPost`,
     {
@@ -56,6 +57,7 @@ const banPost = (id, note) => {
   );
 };
 const unbanPost = (id, note, userId) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/unBanPost`,
     {
@@ -72,6 +74,7 @@ const unbanPost = (id, note, userId) => {
 };
 
 const inactivePost = (id, note) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/rejectPost`,
     {
@@ -87,6 +90,7 @@ const inactivePost = (id, note) => {
   );
 };
 const activePost = (id) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/approvePost`,
     {

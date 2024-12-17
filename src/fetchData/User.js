@@ -23,6 +23,7 @@ const getAllUsers = (searchKey) => {
   });
 };
 const banUser = (userId, note) => {
+  const token = localStorage.getItem("token");
   return axios.post("/banUser",
     { userId: userId, 
       note: note
@@ -34,6 +35,7 @@ const banUser = (userId, note) => {
   });
 };
 const unBanUser = (userId) => {
+  const token = localStorage.getItem("token");
   return axios.post("/unBanUser",
     { userId: userId
     },{
@@ -43,6 +45,7 @@ const unBanUser = (userId) => {
   });
 };
 const setUserToAdmin = (userId) => {
+  const token = localStorage.getItem("token");
   return axios.post("/setUserToAdmin",
     {
       userId: userId
