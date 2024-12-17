@@ -25,6 +25,7 @@ const getCompanyById = (companyId) => {
   });
 };
 const banCompany = (companyId, reason) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/banCompany`,
     {
@@ -39,6 +40,7 @@ const banCompany = (companyId, reason) => {
   );
 };
 const unbanCompany = (companyId) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/unBanCompany`,
     {
@@ -90,6 +92,7 @@ const updateCompany = (
 };
 
 const inactiveCompany = (companyId) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/rejectCompany`,
     {
@@ -104,6 +107,7 @@ const inactiveCompany = (companyId) => {
 };
 
 const activeCompany = (companyId) => {
+  const token = localStorage.getItem("token");
   return axios.post(
     `/approveCompany`,
     {
