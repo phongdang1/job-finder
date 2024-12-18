@@ -9,7 +9,7 @@ import { Component } from "./Component";
 import { LineChartLabel } from "./LineChart";
 import { TableDemo } from "./Table";
 // import { Component } from "./Component";
-
+import GlobalLoadingMain from "@/components/GlobalLoading/GlobalLoadingMain";
 import { getAllPost } from "../../../fetchData/Post";
 import { getAllCodeByType } from "../../../fetchData/AllCode";
 
@@ -18,11 +18,14 @@ const Dashboard = () => {
   const [postData, setPostData] = useState([]);
   const [topJobTypes, setTopJobTypes] = useState([]);
   const [otherPostsCount, setOtherPostsCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch job types and posts
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [jobTypeResponse, postResponse] = await Promise.all([
           getAllCodeByType("JOBTYPE"),
           getAllPost(),
@@ -36,6 +39,8 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -74,6 +79,9 @@ const Dashboard = () => {
       setOtherPostsCount(otherCount);
     }
   }, [jobTypeData, postData]);
+
+  if (loading) return <GlobalLoadingMain isSubmiting={true} />;
+  if (error) return <p>{error}</p>;
   return (
     <div className="flex flex-col gap-4">
       <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
