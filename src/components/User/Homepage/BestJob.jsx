@@ -283,15 +283,23 @@ function BestJob() {
           <JobCard expand="" data={currentJobs} />
         ) : (
           <>
-            <div></div>
-            <div className="w-full flex justify-center items-center text-center text-gray-500">
-              <p>No jobs available</p>
-            </div>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 items-center md:items-start"
+              >
+                <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 shrink-0" />
+                <div className="space-y-2 w-full">
+                  <Skeleton className="h-4 w-3/4 sm:w-[250px] lg:w-[300px]" />
+                  <Skeleton className="h-4 w-1/2 sm:w-[200px] lg:w-[250px]" />
+                </div>
+              </div>
+            ))}
           </>
         )}
       </div>
       {/* Pagination */}
-      {totalPages > 0 ? (
+      {totalPages > 0 && !isLoading ? (
         <JobPagination
           currentPage={currentPage}
           totalPages={totalPages}
