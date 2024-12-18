@@ -80,7 +80,7 @@ function UserProfilePage() {
   const fetchUserData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/getUserById?id=${userId}`,
+        `https://be-jobfinder-final.onrender.com/getUserById?id=${userId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

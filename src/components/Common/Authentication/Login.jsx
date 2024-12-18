@@ -181,7 +181,7 @@ const Login = () => {
   };
   const fetchGoogle = async() => {
     const responseGoogle = await axios.get(
-      "http://localhost:5000/auth/google/callback",
+      "https://be-jobfinder-final.onrender.com/auth/google/callback",
       {
         withCredentials: true, // Để gửi cookie session
       }
@@ -209,7 +209,7 @@ const Login = () => {
   // Function to handle Google login using the googleLogin thunk
   const handleGoogleLogin = async () => {
     // Dispatch Google login action
-    window.open("http://localhost:5000/auth/google", "_self");
+    window.open("https://be-jobfinder-final.onrender.com/auth/google", "_self");
   };
 
   //Validation
