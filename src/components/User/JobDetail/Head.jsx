@@ -54,7 +54,7 @@ import GlobalLoading from "@/components/GlobalLoading/GlobalLoading";
 import { Image } from "@nextui-org/react";
 
 import { getAllPost } from "@/fetchData/Post";
-
+import GlobalLoadingSmall from "@/components/GlobalLoading/GlobalLoadingSmall";
 
 const Head = ({ job }) => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const Head = ({ job }) => {
   const currentTime = new Date();
   const [isSubmitting, setIsSubmitting] = useState(false); // State for loading
   const [relatedJob, setRelatedJob] = useState([]); // State for
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchUserData();
     console.log("job ne", job);
@@ -96,6 +96,7 @@ const Head = ({ job }) => {
 
   const fetchUserData = async () => {
     // const jobId = job.data.id;
+    setLoading(true);
     try {
       const response = await axios.get(`/getUserById?id=${userId}`, {
         headers: {
@@ -131,6 +132,8 @@ const Head = ({ job }) => {
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -173,14 +176,14 @@ const Head = ({ job }) => {
       const res = await getAllPost();
       if (res.data.errCode === 0) {
         console.log("relate ne", res.data.data);
-  
+
         // Filter related jobs
         const relatedJobs = res.data.data.filter(
           (post) =>
             post.postDetailData.jobTypePostData.code ===
             job.data.postDetailData.jobTypePostData.code
         );
-  
+
         // Sort by `isHot` first, then by `createdAt` (newest first)
         const sortedJobs = relatedJobs.sort((a, b) => {
           // Compare `isHot` first
@@ -190,10 +193,10 @@ const Head = ({ job }) => {
           // If `isHot` is the same, compare `createdAt`
           return new Date(b.createdAt) - new Date(a.createdAt); // Newest first
         });
-  
+
         // Limit to 9 jobs
         const limitedSortedJobs = sortedJobs.slice(0, 9);
-  
+
         console.log(
           "related jobs (sorted by isHot, createdAt, and limited to 9):",
           limitedSortedJobs
@@ -206,7 +209,6 @@ const Head = ({ job }) => {
       console.error("Error in fetchRelatedJobs:", error);
     }
   };
-  
 
   return (
     <div className="flex flex-col mx-4 lg:mx-36">
@@ -291,7 +293,9 @@ const Head = ({ job }) => {
 
               {/* nút nộp CV chỗ này */}
               <div className="flex items-center justify-center gap-x-2">
-                {!isApplied || !userId ? (
+                {loading ? (
+                  <GlobalLoadingSmall className="w-44" isSubmiting={loading} />
+                ) : !isApplied || !userId ? (
                   <>
                     {!userId ||
                     user?.isVerify === 0 ||
@@ -336,7 +340,7 @@ const Head = ({ job }) => {
                                     : "/"
                                 )
                               }
-                              className="mt-2 text-primary  border border-primary hover:bg-primary hover:text-white"
+                              className="mt-2 text-primary border border-primary hover:bg-primary hover:text-white"
                             >
                               {!userId
                                 ? "Login Now"
@@ -390,7 +394,7 @@ const Head = ({ job }) => {
                                 <textarea
                                   value={description}
                                   onChange={handleInputChange}
-                                  placeholder="Write a brief introduction of yourself ( strength, weakness ) and your desire as well as your reason of choosing this job"
+                                  placeholder="Write a brief introduction of yourself (strength, weakness) and your desire as well as your reason of choosing this job"
                                   className="w-full max-h-96 border border-gray-200 p-3 focus:border-primary"
                                 />
                               </>
@@ -420,7 +424,7 @@ const Head = ({ job }) => {
                   </>
                 ) : (
                   <Button
-                    className="w-full flex gap-2 py-4 mr-3  lg:w-auto px-6 text-center bg-white text-primary hover:bg-primary hover:text-white border-primary text-base font-medium"
+                    className="w-full flex gap-2 py-4 mr-3 lg:w-auto px-6 text-center bg-white text-primary hover:bg-primary hover:text-white border-primary text-base font-medium"
                     variant="outline"
                     onClick={() => {
                       navigate("/userProfile/viewApplication");

@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody } from "@nextui-org/card";
-import {
-  getAllCompaniesInHomePage,
-  getCompanyById,
-} from "@/fetchData/Company";
+import { getAllCompaniesInHomePage, getCompanyById } from "@/fetchData/Company";
 import image from "../../../assets/Home/Company-rafiki.png";
 import { Link } from "react-router-dom";
 import "aos/dist/aos.css";
@@ -15,7 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
+import { Skeleton } from "@/components/ui/skeleton";
 const FeaturedCompanies = () => {
   const [companies, setCompanies] = useState([]);
 
@@ -48,7 +45,9 @@ const FeaturedCompanies = () => {
         );
 
         // Sắp xếp công ty theo số lượng công việc giảm dần
-        const sortedCompanies = companiesWithJobCounts.sort((a, b) => b.totalJobs - a.totalJobs);
+        const sortedCompanies = companiesWithJobCounts.sort(
+          (a, b) => b.totalJobs - a.totalJobs
+        );
 
         // Lưu trữ kết quả vào state
         setCompanies(sortedCompanies);
@@ -68,31 +67,49 @@ const FeaturedCompanies = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {Array.isArray(companies) && companies.length > 0 ? (
-          companies.slice(0, 8).map((company, index) => (
-            <Link to={`/companydetail/${company.id}`} key={index}>
-              <Card className="relative cursor-pointer hover:bg-[#E6E6FA]/50 hover:outline-2 hover:outline-primary h-[230px] max-h-[500px]">
-                <CardHeader className="flex items-center justify-center flex-col">
-                  {company.thumbnail ? ( <img alt={company.name} className="w-28 h-28" src={company.thumbnail} />) : (
-                     <img alt={company.name} className="w-32 h-28" src={image} />
-                  )}
-                 
-                </CardHeader>
-                <CardBody className="text-center">
-                  <h4 className="text-third font-semibold text-lg text-center truncate">
-                    {company.name}
-                  </h4>
-                  <p className=" my-2">
-                    <span className="text-primary">{company.totalJobs}</span> jobs
-                    available
-                  </p>
-                </CardBody>
-              </Card>
-            </Link>
-          ))
-        ) : (
-          <p>No companies available</p>
-        )}
+        {Array.isArray(companies) && companies.length > 0
+          ? companies.slice(0, 8).map((company, index) => (
+              <Link to={`/companydetail/${company.id}`} key={index}>
+                <Card className="relative cursor-pointer hover:bg-[#E6E6FA]/50 hover:outline-2 hover:outline-primary h-[230px] max-h-[500px]">
+                  <CardHeader className="flex items-center justify-center flex-col">
+                    {company.thumbnail ? (
+                      <img
+                        alt={company.name}
+                        className="w-28 h-28"
+                        src={company.thumbnail}
+                      />
+                    ) : (
+                      <img
+                        alt={company.name}
+                        className="w-32 h-28"
+                        src={image}
+                      />
+                    )}
+                  </CardHeader>
+                  <CardBody className="text-center">
+                    <h4 className="text-third font-semibold text-lg text-center truncate">
+                      {company.name}
+                    </h4>
+                    <p className=" my-2">
+                      <span className="text-primary">{company.totalJobs}</span>{" "}
+                      jobs available
+                    </p>
+                  </CardBody>
+                </Card>
+              </Link>
+            ))
+          : Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="relative cursor-pointer hover:bg-[#E6E6FA]/50 hover:outline-2 hover:outline-primary h-[230px] max-h-[500px] animate-pulse"
+              >
+                <div className="flex items-center justify-center flex-col h-[80%]">
+                  <div className="w-28 h-28 bg-gray-300 rounded-full mb-4"></div>
+                  <div className="w-3/4 h-4 bg-gray-300 rounded mb-2"></div>
+                  <div className="w-1/2 h-4 bg-gray-300 rounded"></div>
+                </div>
+              </div>
+            ))}
       </div>
     </div>
   );

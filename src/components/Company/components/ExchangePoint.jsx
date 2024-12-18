@@ -25,6 +25,8 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import GlobalLoadingMain from "@/components/GlobalLoading/GlobalLoadingMain";
+import GlobalLoading from "@/components/GlobalLoading/GlobalLoading";
+import GlobalLoadingSmall from "@/components/GlobalLoading/GlobalLoadingSmall";
 const giftPackages = [
   { id: 1, name: "10 Featured Posts", points: 500, value: 10, plan: "post" },
   { id: 2, name: "25 Featured Posts", points: 900, value: 25, plan: "post" },
@@ -51,7 +53,9 @@ const ExchangePoint = () => {
   const [user, setUser] = useState();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const fetchCompany = async () => {
+    setIsLoading(true);
     const res = await getCompanyById(companyId);
     const resUser = await getUsersById(userId);
     if (res && resUser) {
@@ -61,6 +65,7 @@ const ExchangePoint = () => {
     } else {
       console.log("Error fetching company", res);
     }
+    setIsLoading(false);
   };
   useEffect(() => {
     fetchCompany();
@@ -115,7 +120,7 @@ const ExchangePoint = () => {
     <div className="my-20 px-4 sm:px-6 lg:px-8 relative">
       <Link
         to="/company/product"
-        className="z-50 absolute -top-14 flex items-center justify-center gap-1 font-semibold hover:text-primary transition"
+        className="z-20 absolute -top-14 flex items-center justify-center gap-1 font-semibold hover:text-primary transition"
       >
         <IoIosArrowBack />
         Return to Product page
@@ -147,7 +152,11 @@ const ExchangePoint = () => {
           className="flex gap-2 font-semibold text-lg sm:text-2xl py-6 sm:py-10 items-center justify-center"
         >
           <h1>Your Points:</h1>
-          <span className="text-primary">{user?.point}</span>
+          {isLoading ? (
+            <GlobalLoadingSmall className="right-64" isSubmiting={true} />
+          ) : (
+            <span className="text-primary">{user?.point}</span>
+          )}
         </div>
 
         {/* post */}
@@ -156,12 +165,22 @@ const ExchangePoint = () => {
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
         >
           <div className="bg-white rounded-md flex flex-col gap-2 font-semibold text-lg sm:text-xl p-4 sm:p-4 items-center justify-center border-2 border-primary shadow-lg min-h-[150px] sm:min-h-[200px] max-w-full w-[500px] sm:max-w-[500px]">
-            <span className="text-primary">{company?.allowHotPost}</span>
+            {isLoading ? (
+              <GlobalLoadingSmall className="top-1" isSubmiting={true} />
+            ) : (
+              <span className="text-primary">{company?.allowHotPost}</span>
+            )}
+
             <h1>Hot Posts remaining</h1>
           </div>
           {/* cv */}
           <div className="bg-white rounded-md flex flex-col gap-2 font-semibold text-lg sm:text-xl p-8 sm:p-4 items-center justify-center border-2 border-primary shadow-lg min-h-[150px] sm:min-h-[200px] max-w-full w-[500px] sm:max-w-[500px]">
-            <span className="text-primary">{company?.allowCv}</span>
+            {isLoading ? (
+              <GlobalLoadingSmall className="top-1" isSubmiting={true} />
+            ) : (
+              <span className="text-primary">{company?.allowCv}</span>
+            )}
+
             <h1>View CV remaining</h1>
           </div>
         </div>
