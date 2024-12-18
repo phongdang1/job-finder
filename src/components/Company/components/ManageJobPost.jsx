@@ -95,71 +95,6 @@ const ManageJobPost = () => {
         setCompany(res.data.data);
         console.log("company ne", res.data.data);
         setPost(res.data.data.postData);
-        const userCvData = {};
-        const userDetailsData = {};
-        const scheduleData = {};
-
-        for (let i = 0; i < res.data.data.postData.length; i++) {
-          const cvEntry = res.data.data.postData[i];
-          const id = cvEntry.id;
-          console.log(`Fetching CVs for post ID: ${id}`);
-
-          const resUserCV = await axios.get(
-            `/getAllListCvByPost?postId=${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          console.log(`CV Response for post ID ${id}:`, resUserCV);
-          userCvData[id] = resUserCV.data.data || [];
-
-          for (const userCv of resUserCV.data.data || []) {
-            const userId = userCv.userId;
-            console.log(`Fetching details for user ID: ${userId}`);
-            if (!userDetailsData[userId]) {
-              const resUserDetail = await axios.get(
-                `/getUserById?id=${userId}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              );
-              const resSchedule = await axios.get(
-                `/getInterviewScheduleByCvPost?cvPostId=${userCv.id}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              );
-              console.log(
-                `User Details Response for user ID ${userId}:`,
-                resUserDetail
-              );
-              userDetailsData[userId] = resUserDetail.data.data;
-              scheduleData[userCv.id] = resSchedule.data.data;
-              console.log(
-                `Stored schedule for user ID ${userId}:`,
-                scheduleData[userCv.id]
-              );
-              console.log(
-                `Stored details for user ID ${userId}:`,
-                userDetailsData[userId]
-              );
-            }
-          }
-        }
-
-        // Set the final data in state
-        setUserCVs(userCvData);
-        setUserDetails(userDetailsData);
-        setSchedule(scheduleData);
-        setIsLoading(false);
-        console.log("Final User CVs by Post ID:", userCvData);
-        console.log("Final User Details:", userDetailsData);
       } else {
         console.log("Error: ", res.data.errMessage);
       }
@@ -167,10 +102,83 @@ const ManageJobPost = () => {
       console.log("Error fetching data: ", error);
     }
   };
-  const handleSubmitForm = async () => {
-    try {
-      setIsLoading(true);
+  const fetchUserCvs = async () => {
+    const userCvData = {};
+    const userDetailsData = {};
+    const scheduleData = {};
 
+    setIsLoading(true);
+
+    try {
+      // Gửi tất cả các yêu cầu CV cùng lúc
+      const userCVRequests = post.map((cvEntry) => {
+        const id = cvEntry.id;
+        console.log(`Fetching CVs for post ID: ${id}`);
+        return axios
+          .get(`/getAllListCvByPost?postId=${id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then((res) => {
+            userCvData[id] = res.data.data || [];
+            return res.data.data || [];
+          });
+      });
+
+      const userCVs = await Promise.all(userCVRequests);
+
+      const userDetailsRequests = [];
+      const scheduleRequests = [];
+
+      userCVs.forEach((cvList, postId) => {
+        cvList.forEach((userCv) => {
+          const userId = userCv.userId;
+          if (!userDetailsData[userId]) {
+            userDetailsRequests.push(
+              axios
+                .get(`/getUserById?id=${userId}`, {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                })
+                .then((resUserDetail) => {
+                  userDetailsData[userId] = resUserDetail.data.data;
+                })
+            );
+
+            scheduleRequests.push(
+              axios
+                .get(`/getInterviewScheduleByCvPost?cvPostId=${userCv.id}`, {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                })
+                .then((resSchedule) => {
+                  scheduleData[userCv.id] = resSchedule.data.data;
+                })
+            );
+          }
+        });
+      });
+
+      await Promise.all([...userDetailsRequests, ...scheduleRequests]);
+
+      setUserCVs(userCvData);
+      setUserDetails(userDetailsData);
+      setSchedule(scheduleData);
+
+      console.log("Final User CVs by Post ID:", userCvData);
+      console.log("Final User Details:", userDetailsData);
+      setIsLoading(false);
+    } catch (error) {
+      console.log("Error fetching user CVs:", error);
+    }
+  };
+
+  const handleSubmitForm = async () => {
+    setIsLoading(true);
+    try {
       const res = await axios.post(
         `/createInterviewSchedule`,
         {
@@ -189,7 +197,7 @@ const ManageJobPost = () => {
         console.log("form ne", res);
         setOpenSchedule(null);
         toast.success("Set interview schedule successfully !!!");
-        fetchCompanyData();
+        await fetchUserCvs();
         setScheduleForm({
           interviewDate: "",
           interviewLocation: "",
@@ -204,9 +212,7 @@ const ManageJobPost = () => {
     } catch (error) {
       console.log("error j j day", error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 15000);
+      setIsLoading(false);
     }
   };
 
@@ -214,13 +220,12 @@ const ManageJobPost = () => {
     setIsLoading(true);
 
     try {
-      setIsLoading(true);
       const res = await handleRejectCvPost(id);
       if (res.data.errCode === 0) {
         console.log("CV Rejected !!!", res);
         toast.success("CV Rejected !!");
+
         setRejectDialog(false);
-        fetchCompanyData();
         setScheduleForm({
           interviewDate: "",
           interviewLocation: "",
@@ -228,24 +233,26 @@ const ManageJobPost = () => {
           cvPostId: "",
           companyId: "",
         });
+
+        await fetchUserCvs();
       } else {
-        console.log("loi rejected");
+        console.log("Error rejecting CV");
       }
     } catch (error) {
-      console.log("error reject", error);
+      console.log("Error rejecting CV:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Tắt loading khi tất cả hoàn tất
     }
   };
   const handleApprove = async (id) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const res = await handleApproveCvPost(id);
       if (res.data.errCode === 0) {
         console.log("CV Approved!!!", res);
         toast.success("CV Approved");
-        fetchCompanyData();
         setApproveDialog(false);
+        await fetchUserCvs();
       } else {
         console.log("loi approved", res);
       }
@@ -259,6 +266,12 @@ const ManageJobPost = () => {
   useEffect(() => {
     fetchCompanyData();
   }, []);
+
+  useEffect(() => {
+    if (post.length > 0) {
+      fetchUserCvs(post);
+    }
+  }, [post]);
 
   const closePost = async (id) => {
     try {
@@ -439,7 +452,8 @@ const ManageJobPost = () => {
                     : ""
                 }
                 ${
-                  userCv.statusCode === "REJECTED"
+                  userCv.statusCode === "REJECTED" ||
+                  userCv.statusCode === "BANNED"
                     ? "bg-red-100 text-red-700"
                     : ""
                 }
@@ -1544,7 +1558,7 @@ const ManageJobPost = () => {
                             : ""
                         }
                         ${
-                          post.statusCode.toUpperCase() === "INACTIVE"
+                          post.statusCode.toUpperCase() === "BANNED"
                             ? "bg-yellow-100 text-yellow-700"
                             : ""
                         }

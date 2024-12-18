@@ -16,6 +16,7 @@ import {
 import { createPaymentViewCv, createPaymentVip } from "@/fetchData/Transaction";
 import GlobalLoadingMain from "@/components/GlobalLoading/GlobalLoadingMain";
 import { getUsersById } from "@/fetchData/User";
+import GlobalLoadingSmall from "@/components/GlobalLoading/GlobalLoadingSmall";
 
 const VipFeature = () => {
   useEffect(() => {
@@ -29,7 +30,7 @@ const VipFeature = () => {
 
   const userId = localStorage.getItem("user_id");
   const [loading, setLoading] = useState(false); // Đặt initial loading là false
-
+  const [loadingButton, setLoadingButton] = useState(false);
   console.log("userid:", user?.data?.isVip);
 
   const handleUpdateVip = async () => {
@@ -60,6 +61,7 @@ const VipFeature = () => {
     }
   };
   const fetchUser = async (userId) => {
+    setLoadingButton(true);
     try {
       const response = await getUsersById(userId);
       if (response.data) {
@@ -68,6 +70,8 @@ const VipFeature = () => {
       }
     } catch (error) {
       console.error("Failed to fetch user:", error);
+    } finally {
+      setLoadingButton(false);
     }
   };
 
@@ -95,17 +99,21 @@ const VipFeature = () => {
           <div className="text-3xl font-bold  bg-gradient-to-r from-[#4a3d8d]/80 to-primary/90 bg-clip-text text-transparent p-2 rounded-lg">
             30$
           </div>
-          <Button
-            onClick={handleUpdateVip}
-            disabled={user?.data?.isVip === 1 || user?.errCode !== 0}
-            className="mt-4 py-8 px-5 rounded-2xl bg-white border border-primary hover:bg-primary hover:text-white shadow-sm shadow-primary"
-          >
-            {user?.errCode !== 0
-              ? "You are not logged in !"
-              : user?.data?.isVip === 1
-              ? "You are already VIP member !"
-              : "Upgrade Now"}
-          </Button>
+          {loadingButton ? (
+            <GlobalLoadingSmall isSubmiting={loadingButton} />
+          ) : (
+            <Button
+              onClick={handleUpdateVip}
+              disabled={user?.data?.isVip === 1 || user?.errCode !== 0}
+              className="mt-4 py-8 px-5 rounded-2xl bg-white border border-primary hover:bg-primary hover:text-white shadow-sm shadow-primary"
+            >
+              {user?.errCode !== 0
+                ? "You are not logged in !"
+                : user?.data?.isVip === 1
+                ? "You are already VIP member !"
+                : "Upgrade Now"}
+            </Button>
+          )}
         </div>
         {/* image */}
         <div>

@@ -510,20 +510,25 @@ const FindCandidate = () => {
                 </div>
               </div>
             </div>
+
+            {/* button */}
+            <div className="flex gap-2 mt-2 justify-end mr-4">
+              <Button
+                onClick={handleReset}
+                className="text-white"
+                type="button"
+              >
+                Reset
+              </Button>
+              <Button
+                type="submit"
+                variant="outline"
+                className="text-primary border border-primary hover:bg-primary hover:text-white"
+              >
+                Search
+              </Button>
+            </div>
           </ScrollArea>
-          {/* button */}
-          <div className="flex gap-2 mt-2 justify-end mr-4">
-            <Button onClick={handleReset} className="text-white" type="button">
-              Reset
-            </Button>
-            <Button
-              type="submit"
-              variant="outline"
-              className="text-primary border border-primary hover:bg-primary hover:text-white"
-            >
-              Search
-            </Button>
-          </div>
         </form>
       </div>
       {/* Right */}
