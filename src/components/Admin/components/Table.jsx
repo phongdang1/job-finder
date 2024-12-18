@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/table";
 import { getAllUserPackage } from "@/fetchData/Package";
 import AdminPagination from "./AdminPagination";
-import * as XLSX from "xlsx"; // Import thư viện SheetJS
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { RiFileExcel2Line } from "react-icons/ri";
 
 export function TableDemo() {
   const [userPackages, setUserPackages] = useState([]);
@@ -47,31 +48,10 @@ export function TableDemo() {
     setCurrentPage(page);
   };
 
-  // // Hàm xuất dữ liệu ra file Excel
-  // const handleExportToExcel = () => {
-  //   const dataToExport = userPackages.map((userPackage, index) => ({
-  //     STT: index + 1,
-  //     "User Email": userPackage.userPackageData.email,
-  //     "Package Name": userPackage.PackageData.name,
-  //     Price: userPackage.PackageData.price,
-  //     Type: userPackage.PackageData.type,
-  //   }));
-
-  //   // Tạo worksheet từ dữ liệu
-  //   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  //   const workbook = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, "User Service Packs");
-
-  //   // Xuất file Excel
-  //   XLSX.writeFile(workbook, "User_Service_Packs.xlsx");
-  // };
-
-  // Hàm xuất dữ liệu ra file Excel
   const handleExportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("User Service Packs");
 
-    // Thêm tiêu đề cột
     worksheet.columns = [
       { header: "STT", key: "stt", width: 10 },
       { header: "User Email", key: "email", width: 30 },
@@ -80,7 +60,6 @@ export function TableDemo() {
       { header: "Type", key: "type", width: 15 },
     ];
 
-    // Thêm dữ liệu vào worksheet
     userPackages.forEach((userPackage, index) => {
       worksheet.addRow({
         stt: index + 1,
@@ -91,7 +70,6 @@ export function TableDemo() {
       });
     });
 
-    // Căn giữa nội dung và thêm viền cho tất cả các ô
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -104,54 +82,83 @@ export function TableDemo() {
       });
     });
 
-    // Xuất file Excel
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), "User_Service_Packs.xlsx");
   };
 
+  // Tính tổng giá tiền
+  const totalPrice = userPackages.reduce(
+    (sum, userPackage) => sum + Number(userPackage.PackageData.price || 0),
+    0
+  );
+
   return (
-    <div className="w-full">
+    <div className="w-full p-6">
       <div className="flex justify-end mb-4">
         <Button
           onClick={handleExportToExcel}
-          className="bg-third hover:text-white text-white rounded-md mt-4"
+          className="bg-third hover:text-white text-white rounded-md px-4 py-2 flex items-center gap-2"
         >
-          Export to Excel
+          Export to Excel <RiFileExcel2Line className="w-5 h-5" />
         </Button>
       </div>
-      <Table className="bg-white border border-gray-200 rounded-sm">
-        <TableCaption>List of user service packs.</TableCaption>
+      <Table className="bg-white border border-gray-200 rounded-lg shadow-md">
+        <TableCaption className="text-lg font-semibold text-gray-700">
+          List of User Service Packs
+        </TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[50px]">STT</TableHead>
-            <TableHead>User Email</TableHead>
-            <TableHead>Package Name</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Type</TableHead>
+          <TableRow className="bg-gray-200 text-gray-600">
+            <TableHead className="w-[50px] text-center font-bold">
+              STT
+            </TableHead>
+            <TableHead className="text-center font-bold">User Email</TableHead>
+            <TableHead className="text-center font-bold">
+              Package Name
+            </TableHead>
+            <TableHead className="text-center font-bold">Price</TableHead>
+            <TableHead className="text-center font-bold">Type</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedData.map((userPackage, index) => (
-            <TableRow key={userPackage.packageId}>
-              <TableCell className="font-medium">
+            <TableRow key={userPackage.packageId} className="hover:bg-gray-100">
+              <TableCell className="text-center">
                 {(currentPage - 1) * itemsPerPage + index + 1}
               </TableCell>
-              <TableCell>{userPackage.userPackageData.email}</TableCell>
-              <TableCell>{userPackage.PackageData.name}</TableCell>
-              <TableCell>{userPackage.PackageData.price}</TableCell>
-              <TableCell>{userPackage.PackageData.type}</TableCell>
+              <TableCell className="text-center">
+                {userPackage.userPackageData.email}
+              </TableCell>
+              <TableCell className="text-center">
+                {userPackage.PackageData.name}
+              </TableCell>
+              <TableCell className="text-center">
+                ${userPackage.PackageData.price}
+              </TableCell>
+              <TableCell className="text-center">
+                {userPackage.PackageData.type}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
-          <TableRow></TableRow>
+          <TableRow className="bg-gray-200">
+            <TableCell colSpan={3} className="text-right font-bold">
+              Total:
+            </TableCell>
+            <TableCell className="text-center font-bold text-green-600">
+              ${totalPrice.toFixed(2)}
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
         </TableFooter>
       </Table>
-      <AdminPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <div className="mt-4">
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }

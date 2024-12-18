@@ -64,11 +64,11 @@ function AdminLayout() {
             matchReport) && (
             <>
               {/* Banner Image */}
-              <img
+              {/* <img
                 src="/src/assets/images/Banner/Banner4.jpeg" // Replace with the actual URL of your banner image
                 alt="Banner"
                 className="w-cover h-33 pb-4 object-cover " // Adjust height as needed
-              />
+              /> */}
               <span className="text-2xl font-bold pl-1">{title}</span>
             </>
           )}

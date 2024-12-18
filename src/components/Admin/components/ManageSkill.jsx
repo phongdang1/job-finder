@@ -71,7 +71,6 @@ const ManageSkill = () => {
 
   const fetchSkills = async (searchKey = "", selectedCategory = "all") => {
     try {
-      setLoading(true);
       const response = await axios.get("/getAllSkill", {
         params: {
           searchKey,
