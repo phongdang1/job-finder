@@ -189,7 +189,7 @@ function BestJob() {
           handlePageChange(nextPage);
           return nextPage;
         });
-      }, 20000);
+      }, 30000);
 
       setAutoPaginate(interval);
 
